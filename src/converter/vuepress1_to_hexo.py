@@ -4,15 +4,13 @@
 import os
 import re
 
-import yaml
 from loguru import logger
 
 from src.category_info import CategoryInfo
 from src.converter.base_converter import BaseConverter
+from src.formatter.hexo_front_formatter import HexoFrontFormatter
 from src.post import Post
 from src.utils import strutils, dictutils, fileutils
-from src.utils.strutils import MyDumper
-from src.vuepress2_front_formatter import Vuepress2FrontFormatter
 
 
 class vuepress1ToHexo(BaseConverter):
@@ -20,12 +18,9 @@ class vuepress1ToHexo(BaseConverter):
         self.IGNORED_PATHS = ["node_modules", ".vuepress"]
         self.IGNORED_FILES = [".DS_Store"]
         self.EXCLUDE_CATS = ["更多", "默认分类", "temp", "博文", "心情随笔", "_posts"]
-        self.CATS_MAP_DIR = "/Users/terwer/Documents/mydocs/markdown-sync/src/dir_cats_map.json"
-        self.VUEPRESS2_DOCS_PATH = "/Users/terwer/Downloads/hexo-blog"
-        # self.VUEPRESS2_DOCS_PATH = "/Users/terwer/Documents/mydocs/hexo-blog/source/_posts/zh-CN"
+        # self.HEXO_DOCS_PATH = "/Users/terwer/Downloads/hexo-blog"
+        self.HEXO_DOCS_PATH = "/Users/terwer/Documents/mydocs/hexo-blog/source/_posts/zh-CN"
         self.LIMIT_COUNT = -1
-        # 是否使用分类作为保存路径
-        self.use_category_as_dir = False
 
     def convert(self):
         logger.info("Convert is starting...")
@@ -72,25 +67,13 @@ class vuepress1ToHexo(BaseConverter):
                     post.title = dictutils.get_dict_str_value(data, "title")
                     # permalink
                     permalink = dictutils.get_dict_str_value(data, "permalink")
+                    post.wp_slug = permalink
                     # 分类
                     f_cats = dictutils.get_dict_value(data, "categories")
                     if f_cats is not None:
                         cate_names = [c.description for c in post.categories]
                         f_cats = [s.replace('《', '').replace('》', '') for s in f_cats]
                         dir_cats = dir_cats + f_cats
-                        # 保存路径
-                        dir_cates_map = fileutils.read_json_file(self.CATS_MAP_DIR)
-                        cat_path_list = []
-                        for cate_name in cate_names:
-                            cate_name_en = dir_cates_map.get(cate_name)
-                            cate_slug = strutils.slug(cate_name_en)
-                            cat_path_list.append(cate_slug)
-                            # 保存目录说明
-                            cur_cat_save_path = os.sep.join(cat_path_list)
-                            # 是否保存目录
-                            if self.use_category_as_dir:
-                                self._make_vuepress2_dir_category(cur_cat_save_path, cate_name)
-                        cat_save_path = os.sep.join(cat_path_list)
                         title_save_path = permalink.replace(".html", ".md")
                         title_save_path = title_save_path.replace("/post/", "")
                         title_save_path = title_save_path.replace("/pages/", "")
@@ -127,18 +110,12 @@ class vuepress1ToHexo(BaseConverter):
                         post.mt_keywords = []
 
                 # 生成vuepress2支持的formatter
-                v2f = self._make_vuepress2_formatter(post)
+                hexof = self._make_hexo_formatter(post)
                 # 附加formatter到正文
-                post.description = v2f + post.description
+                post.description = hexof + post.description
 
                 # 生成分类目录
-                md_save_full_path = self.VUEPRESS2_DOCS_PATH
-                if self.use_category_as_dir:
-                    md_save_full_path = os.path.join(self.VUEPRESS2_DOCS_PATH, cat_save_path)
-                if cat_save_path == "":
-                    logger.warning("Cate path is empty, ignore")
-                    continue
-
+                md_save_full_path = self.HEXO_DOCS_PATH
                 if title_save_path == "":
                     logger.warning("File name is empty, ignore")
                     continue
@@ -183,42 +160,25 @@ class vuepress1ToHexo(BaseConverter):
                 cats.append(cate)
         return cats
 
-    def _make_vuepress2_formatter(self, post: Post):
+    def _make_hexo_formatter(self, post: Post):
         """
-        生成vuepress2支持的formatter
+        生成hexo支持的formatter
         :param post:
-        :return:
         """
-        v2f = Vuepress2FrontFormatter()
-        v2f.title = post.title
-        # v2f.short_title = post.title
-        v2f.description = post.short_desc
-        v2f.date = post.date_created
-        v2f.category = [c.description for c in post.categories]
+        hexof = HexoFrontFormatter()
+        hexof.permalink = post.wp_slug
+        hexof.title = post.title
+        hexof.updated = post.date_created
+        hexof.excerpt = post.short_desc
         str_tags = []
         for t in post.mt_keywords:
             str_tags.append(str(t))
-        v2f.tag = str_tags
+        hexof.tags = str_tags
+        hexof.categories = [c.description for c in post.categories]
 
-        if "timeline" in v2f.category:
-            v2f.timeline = True
-            v2f.article = True
-        return v2f.to_md()
+        if "timeline" in hexof.categories:
+            hexof.categories.remove("timeline")
+            if "timeline" not in hexof.tags:
+                hexof.tags.append("timeline")
 
-    def _make_vuepress2_dir_category(self, cate_save_path, cate_name):
-        cate_readme_full_path = os.path.join(self.VUEPRESS2_DOCS_PATH, cate_save_path, "README.md")
-        # print(cate_readme_full_path)
-        md_formatter = {
-            "article": False,
-            "timeline": False
-        }
-        title_text = f"# {cate_name}"
-        md_text = yaml.dump(md_formatter, allow_unicode=True, Dumper=MyDumper, indent=2, sort_keys=False)
-        result = ["---\n", md_text, "---\n", title_text]
-        md_content = "".join(result)
-        p = os.path.dirname(cate_readme_full_path)
-        f = os.path.basename(cate_readme_full_path)
-        # 不存在才写
-        if not os.path.exists(cate_readme_full_path):
-            logger.info(f"Creating dir category README.md in {cate_save_path}=>{cate_name} ...")
-            fileutils.save_data_to_txt(p, f, md_content)
+        return hexof.to_md()

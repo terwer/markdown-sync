@@ -9,11 +9,10 @@ from loguru import logger
 
 from src.category_info import CategoryInfo
 from src.converter.base_converter import BaseConverter
+from src.formatter.vuepress2_front_formatter import Vuepress2FrontFormatter
 from src.post import Post
 from src.utils import strutils, dictutils, fileutils
 from src.utils.strutils import MyDumper
-from src.vuepress2_front_formatter import Vuepress2FrontFormatter
-
 
 class vuepress1ToVuepress2(BaseConverter):
     def __init__(self):
@@ -21,7 +20,7 @@ class vuepress1ToVuepress2(BaseConverter):
         self.IGNORED_FILES = [".DS_Store"]
         self.EXCLUDE_CATS = ["更多", "默认分类", "temp", "博文", "心情随笔", "_posts"]
         self.vuepress1_folder = "/Users/terwer/Documents/mydocs/terwer.github.io/docs"
-        self.CATS_MAP_DIR = "/Users/terwer/Documents/mydocs/markdown-sync/src/dir_cats_map.json"
+        self.CATS_MAP_DIR = "/Users/terwer/Documents/mydocs/zhi-markdown-sync/src/dir_cats_map.json"
         self.VUEPRESS2_DOCS_PATH = "/Users/terwer/Downloads/vuepress2-blog"
         # self.VUEPRESS2_DOCS_PATH = "/Users/terwer/Documents/mydocs/vuepress2-blog/src/post"
         self.LIMIT_COUNT = -1

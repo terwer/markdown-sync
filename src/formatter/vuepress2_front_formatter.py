@@ -3,15 +3,17 @@
 # ========================================================
 import yaml
 
+from src.formatter.basic_front_formatter import BasicFrontFormatter
 from src.utils import strutils
 from src.utils.strutils import MyDumper
 
 
-class Vuepress2FrontFormatter:
+class Vuepress2FrontFormatter(BasicFrontFormatter):
     def __init__(self):
         """
         初始化函数，创建一个空的 Vuepress2FrontMatter 对象
         """
+        super().__init__()
         self.title = ""  # 文章标题
         self.short_title = ""  # 文章短标题
         self.description = ""  # 文章描述
@@ -72,37 +74,6 @@ class Vuepress2FrontFormatter:
         self.timeline = data.get("timeline", "")
         self.image = data.get("image", "")
         self.banner = data.get("banner", "")
-
-    def from_md(self, md_text):
-        """
-        根据 Markdown 文本内容提取 Vuepress2FrontMatter 对象中的属性
-        :param md_text: Markdown 文本内容
-        """
-        # 实现从 Markdown 中提取 Vuepress2FrontMatter 对象中的属性逻辑
-        data, content = strutils.extract_frontmatter(md_text)
-        self.from_dict(data)
-
-    def to_md(self):
-        """
-        将 Vuepress2FrontMatter 对象转换为 Markdown 格式的字符串
-        :return: Markdown 格式字符串结果
-        """
-        result = ["---\n", self.to_yaml(), "---\n"]
-        return "".join(result)
-
-    def from_yaml(self, yaml_text, reverse=False):
-        """
-        加载或反向加载 Vuepress2FrontMatter 对象的属性，支持 YAML 格式的数据
-        :param yaml_text: YAML 格式的字符串
-        :param reverse: 是否为反向操作，True 表示反向操作，False 表示正常加载
-        """
-        if not reverse:
-            data = yaml.load(yaml_text, Loader=yaml.FullLoader) or {}
-            self.from_dict(data)
-        else:
-            data = self.to_dict()
-            result = yaml.dump(data)
-            return result
 
     def to_yaml(self):
         """

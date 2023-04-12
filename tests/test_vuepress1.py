@@ -24,6 +24,7 @@ import unittest
 
 import yaml
 
+from src.converter.vuepress1_to_hexo import vuepress1ToHexo
 from src.converter.vuepress1_to_vuepress2 import vuepress1ToVuepress2
 from src.utils import strutils
 from src.utils.strutils import MyDumper
@@ -31,8 +32,12 @@ from src.utils.strutils import MyDumper
 
 class MyTestCase(unittest.TestCase):
     def test_vuepress2(self):
-        vuepress2 = vuepress1ToVuepress2()
-        vuepress2.convert()
+        app = vuepress1ToVuepress2()
+        app.convert()
+
+    def test_hexo(self):
+        app = vuepress1ToHexo()
+        app.convert()
 
     def test_slug(self):
         print()
