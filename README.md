@@ -1,6 +1,12 @@
-# markdown-sync
+# zhi-markdown-sync
 
 convert from vuepress1， siyuan-note docs to vuepress2, hexo
+
+## Usage
+
+```bash
+## TODO
+```
 
 ## Install poetry
 
@@ -13,23 +19,23 @@ pip install poetry==1.2.0
 ```bash
 ## https://python-poetry.org/docs/cli/
 ## poetry new markdown-sync
-poetry new markdown-sync --name src
-## poetry new --src markdown-sync
+poetry new zhi-markdown-sync --name src
+## poetry new --src zhi-markdown-sync
 ```
 
 ## Prepare
 
 ```bash
 ## Install pytest
-nx add zhi-markdown-sync pytest
-nx add zhi-markdown-sync pytest-cov
-nx add zhi-markdown-sync pytest-html
+poetry add zhi-markdown-sync pytest
+poetry add zhi-markdown-sync pytest-cov
+poetry add zhi-markdown-sync pytest-html
 
 ## Install pydoc-markdown
-nx add zhi-markdown-sync pydoc-markdown
+poetry add zhi-markdown-sync pydoc-markdown
 
 ## Install tox
-nx add zhi-markdown-sync tox
+poetry add zhi-markdown-sync tox
 ```
 
 ## Install
