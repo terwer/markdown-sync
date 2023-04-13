@@ -12,7 +12,7 @@ class HexoFrontFormatter(BasicFrontFormatter):
         super().__init__()
         self.title = ""
         self.date = None
-        self.updated = ""
+        self.updated = None
         self.excerpt = ""
         self.tags = ""
         self.categories = ""
@@ -57,6 +57,8 @@ class HexoFrontFormatter(BasicFrontFormatter):
             data.pop("excerpt")
         if self.date is None:
             data.pop("date")
+        if self.updated is None:
+            data.pop("updated")
         if not self.hidden:
             data.pop("hidden")
         return yaml.dump(data, allow_unicode=True, Dumper=MyDumper, indent=2, sort_keys=False)

@@ -18,8 +18,8 @@ class vuepress1ToHexo(BaseConverter):
         self.IGNORED_PATHS = ["node_modules", ".vuepress"]
         self.IGNORED_FILES = [".DS_Store"]
         self.EXCLUDE_CATS = ["更多", "默认分类", "temp", "博文", "心情随笔", "_posts"]
-        # self.HEXO_DOCS_PATH = "/Users/terwer/Downloads/hexo-blog"
-        self.HEXO_DOCS_PATH = "/Users/terwer/Documents/mydocs/hexo-blog/source/_posts/zh-CN"
+        self.HEXO_DOCS_PATH = "/Users/terwer/Downloads/hexo-blog"
+        # self.HEXO_DOCS_PATH = "/Users/terwer/Documents/mydocs/hexo-blog/source/_posts/zh-CN"
         self.LIMIT_COUNT = -1
 
     def convert(self):
@@ -94,7 +94,9 @@ class vuepress1ToHexo(BaseConverter):
                             cts.append(ct)
                         post.categories = cts
                     # date
-                    post.date_created = dictutils.get_dict_str_value(data, "date")
+                    dt = dictutils.get_dict_str_value(data, "date")
+                    post.date_created = dt.strftime('%Y-%m-%d %H:%M:%S')
+
                     # short_desc
                     meta = dictutils.get_dict_value(data, "meta")
                     if meta is not None:

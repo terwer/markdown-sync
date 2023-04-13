@@ -1,9 +1,9 @@
 # Copyright (c) 2022 Terwer Authors. All Rights Reserved.
 # @author terwer on 2023/4/12
 # ========================================================
+import datetime
 import json
 import re
-from datetime import datetime
 
 import requests
 import yaml
@@ -83,6 +83,9 @@ def serialize_datetime(obj):
 class MyDumper(yaml.Dumper):
     def increase_indent(self, flow=False, indentless=False):
         return super(MyDumper, self).increase_indent(flow, False)
+
+    def represent_data(self, data):
+        return super(MyDumper, self).represent_data(data)
 
 
 def extract_frontmatter_from_file(file_path):
