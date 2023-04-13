@@ -11,6 +11,7 @@ class HexoFrontFormatter(BasicFrontFormatter):
     def __init__(self):
         super().__init__()
         self.title = ""
+        self.date = None
         self.updated = ""
         self.excerpt = ""
         self.tags = ""
@@ -23,6 +24,7 @@ class HexoFrontFormatter(BasicFrontFormatter):
     def to_dict(self):
         return {
             "title": self.title,
+            "date": self.date,
             "updated": self.updated,
             "excerpt": self.excerpt,
             "tags": self.tags,
@@ -35,6 +37,7 @@ class HexoFrontFormatter(BasicFrontFormatter):
 
     def from_dict(self, data):
         self.title = data.get("title", "")
+        self.date = data.get("date", "")
         self.updated = data.get("updated", "")
         self.excerpt = data.get("excerpt", "")
         self.tags = data.get("tags", "")
@@ -52,6 +55,8 @@ class HexoFrontFormatter(BasicFrontFormatter):
         data = self.to_dict()
         if self.excerpt is None:
             data.pop("excerpt")
+        if self.date is None:
+            data.pop("date")
         if not self.hidden:
             data.pop("hidden")
         return yaml.dump(data, allow_unicode=True, Dumper=MyDumper, indent=2, sort_keys=False)

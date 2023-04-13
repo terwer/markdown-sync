@@ -8,18 +8,18 @@ from loguru import logger
 
 from src.category_info import CategoryInfo
 from src.converter.base_converter import BaseConverter
-from src.formatter.hexo_front_formatter import HexoFrontFormatter
+from src.formatter.hugo_front_formatter import HugoFrontFormatter
 from src.post import Post
 from src.utils import strutils, dictutils, fileutils
 
 
-class vuepress1ToHexo(BaseConverter):
+class vuepress1ToHugo(BaseConverter):
     def __init__(self):
         self.IGNORED_PATHS = ["node_modules", ".vuepress"]
         self.IGNORED_FILES = [".DS_Store"]
         self.EXCLUDE_CATS = ["更多", "默认分类", "temp", "博文", "心情随笔", "_posts"]
-        # self.HEXO_DOCS_PATH = "/Users/terwer/Downloads/hexo-blog"
-        self.HEXO_DOCS_PATH = "/Users/terwer/Documents/mydocs/hexo-blog/source/_posts/zh-CN"
+        # self.HEXO_DOCS_PATH = "/Users/terwer/Downloads/hugo-blog"
+        self.HEXO_DOCS_PATH = "/Users/terwer/Documents/mydocs/hugo-blog/content/post"
         self.LIMIT_COUNT = -1
 
     def convert(self):
@@ -67,6 +67,8 @@ class vuepress1ToHexo(BaseConverter):
                     post.title = dictutils.get_dict_str_value(data, "title")
                     # permalink
                     permalink = dictutils.get_dict_str_value(data, "permalink")
+                    permalink = permalink.replace("/post", "")
+                    permalink = permalink.replace("/pages", "")
                     post.wp_slug = permalink
                     # 分类
                     f_cats = dictutils.get_dict_value(data, "categories")
@@ -75,8 +77,6 @@ class vuepress1ToHexo(BaseConverter):
                         f_cats = [s.replace('《', '').replace('》', '') for s in f_cats]
                         dir_cats = dir_cats + f_cats
                         title_save_path = permalink.replace(".html", ".md")
-                        title_save_path = title_save_path.replace("/post/", "")
-                        title_save_path = title_save_path.replace("/pages/", "")
                         if title_save_path.endswith('/'):
                             title_save_path = title_save_path[:-1] + '.md'  # 去掉末尾的斜杠，然后拼接扩展名
                         title_save_path = os.sep + title_save_path
@@ -110,9 +110,9 @@ class vuepress1ToHexo(BaseConverter):
                         post.mt_keywords = []
 
                 # 生成vuepress2支持的formatter
-                hexof = self._make_hexo_formatter(post)
+                hugof = self._make_hexo_formatter(post)
                 # 附加formatter到正文
-                post.description = hexof + post.description
+                post.description = hugof + post.description
 
                 # 生成分类目录
                 md_save_full_path = self.HEXO_DOCS_PATH
@@ -165,21 +165,23 @@ class vuepress1ToHexo(BaseConverter):
         生成hexo支持的formatter
         :param post:
         """
-        hexof = HexoFrontFormatter()
-        hexof.permalink = post.wp_slug
-        hexof.title = post.title
-        hexof.date = post.date_created
-        hexof.updated = post.date_created
-        hexof.excerpt = post.short_desc
+        hugof = HugoFrontFormatter()
+        hugof.slug = post.wp_slug
+        hugof.title = post.title
+        hugof.date = post.date_created
+        hugof.description = post.short_desc
         str_tags = []
         for t in post.mt_keywords:
             str_tags.append(str(t))
-        hexof.tags = str_tags
-        hexof.categories = [c.description for c in post.categories]
+        hugof.tags = str_tags
+        hugof.categories = [c.description for c in post.categories]
+        hugof.keywords = ",".join(str_tags)
+        hugof.isCJKLanguage = True
+        hugof.toc = True
 
-        if "timeline" in hexof.categories:
-            hexof.categories.remove("timeline")
-            if "timeline" not in hexof.tags:
-                hexof.tags.append("timeline")
+        if "timeline" in hugof.categories:
+            hugof.categories.remove("timeline")
+            if "timeline" not in hugof.tags:
+                hugof.tags.append("timeline")
 
-        return hexof.to_md()
+        return hugof.to_md()
