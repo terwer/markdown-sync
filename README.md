@@ -76,7 +76,7 @@ poetry run pytest tests/
 ## Docs
 
 ```bash
-pydoc-markdown -p zhi_vuepress1_to_vuepress2 --render-toc > docs/source/api.md
+pydoc-markdown -p zhi-markdown-sync --render-toc > docs/source/api.md
 ```
 
 ## Tox

@@ -14,6 +14,7 @@ from src.post import Post
 from src.utils import strutils, dictutils, fileutils
 from src.utils.strutils import MyDumper
 
+
 class vuepress1ToVuepress2(BaseConverter):
     def __init__(self):
         self.IGNORED_PATHS = ["node_modules", ".vuepress"]
