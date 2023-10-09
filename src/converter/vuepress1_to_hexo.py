@@ -18,14 +18,13 @@ class vuepress1ToHexo(BaseConverter):
         self.IGNORED_PATHS = ["node_modules", ".vuepress"]
         self.IGNORED_FILES = [".DS_Store"]
         self.EXCLUDE_CATS = ["更多", "默认分类", "temp", "博文", "心情随笔", "_posts"]
-        self.HEXO_DOCS_PATH = "/Users/terwer/Downloads/hexo-blog"
-        # self.HEXO_DOCS_PATH = "/Users/terwer/Documents/mydocs/hexo-blog/source/_posts/zh-CN"
+        self.VUEPRESS1_FOLDER = "/Users/terwer/Documents/mydocs/terwer.github.io/docs"
+        self.HEXO_DOCS_PATH = "/Users/terwer/Documents/mydocs/hexo-blog/source/_posts/zh-CN"
         self.LIMIT_COUNT = -1
 
     def convert(self):
         logger.info("Convert is starting...")
-        vuepress1_folder = "/Users/terwer/Documents/mydocs/terwer.github.io/docs"
-        self._do_parse_file_info(vuepress1_folder)
+        self._do_parse_file_info(self.VUEPRESS1_FOLDER)
 
     def _do_parse_file_info(self, base_dir):
         """
