@@ -15,14 +15,12 @@ from src.utils import strutils, dictutils, fileutils
 
 
 class vuepress1ToHexo(BaseConverter):
-    def __init__(self):
+    def __init__(self, from_path, to_path):
         self.IGNORED_PATHS = ["node_modules", ".vuepress"]
         self.IGNORED_FILES = [".DS_Store"]
         self.EXCLUDE_CATS = ["更多", "默认分类", "temp", "博文", "心情随笔", "_posts"]
-        self.VUEPRESS1_FOLDER = "/Users/terwer/Documents/mydocs/terwer.github.io/docs"
-        self.HEXO_DOCS_PATH = (
-            "/Users/terwer/Documents/mydocs/hexo-blog/source/_posts/zh-CN"
-        )
+        self.VUEPRESS1_FOLDER = from_path
+        self.HEXO_DOCS_PATH = to_path
         self.LIMIT_COUNT = -1
 
     def convert(self):
@@ -83,7 +81,7 @@ class vuepress1ToHexo(BaseConverter):
                         title_save_path = title_save_path.replace("/pages/", "")
                         if title_save_path.endswith("/"):
                             title_save_path = (
-                                title_save_path[:-1] + ".md"
+                                    title_save_path[:-1] + ".md"
                             )  # 去掉末尾的斜杠，然后拼接扩展名
                         title_save_path = os.sep + title_save_path
 
@@ -154,7 +152,7 @@ class vuepress1ToHexo(BaseConverter):
         # 去掉前缀
         cate_path = ""
         if path.find(prefix) != -1:
-            cate_path = path[find_index + len(prefix) : len(path)]
+            cate_path = path[find_index + len(prefix): len(path)]
         ori_cates = cate_path.split(os.sep)
 
         for ori_cate in ori_cates:

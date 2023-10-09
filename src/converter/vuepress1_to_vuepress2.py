@@ -16,14 +16,13 @@ from src.utils.strutils import MyDumper
 
 
 class vuepress1ToVuepress2(BaseConverter):
-    def __init__(self):
+    def __init__(self, from_path, to_path, cates_map_path):
         self.IGNORED_PATHS = ["node_modules", ".vuepress"]
         self.IGNORED_FILES = [".DS_Store"]
         self.EXCLUDE_CATS = ["更多", "默认分类", "temp", "博文", "心情随笔", "_posts"]
-        self.vuepress1_folder = "/Users/terwer/Documents/mydocs/terwer.github.io/docs"
-        self.CATS_MAP_DIR = "/Users/terwer/Documents/mydocs/zhi-markdown-sync/src/dir_cats_map.json"
-        self.VUEPRESS2_DOCS_PATH = "/Users/terwer/Downloads/vuepress2-blog"
-        # self.VUEPRESS2_DOCS_PATH = "/Users/terwer/Documents/mydocs/vuepress2-blog/src/post"
+        self.vuepress1_folder = from_path
+        self.VUEPRESS2_DOCS_PATH = to_path
+        self.CATS_MAP_DIR = cates_map_path
         self.LIMIT_COUNT = -1
         # 是否使用分类作为保存路径
         self.use_category_as_dir = False
@@ -83,7 +82,9 @@ class vuepress1ToVuepress2(BaseConverter):
                         cat_path_list = []
                         for cate_name in cate_names:
                             cate_name_en = dir_cates_map.get(cate_name)
-                            cate_slug = strutils.slug(cate_name_en)
+                            cate_slug = "no-slug"
+                            if cate_name_en:
+                                cate_slug = strutils.slug(cate_name_en)
                             cat_path_list.append(cate_slug)
                             # 保存目录说明
                             cur_cat_save_path = os.sep.join(cat_path_list)
@@ -127,7 +128,7 @@ class vuepress1ToVuepress2(BaseConverter):
                         post.mt_keywords = []
 
                 # 生成vuepress2支持的formatter
-                v2f = self._make_vuepress2_formatter(post)
+                v2f = self._make_vuepress2_formatter(data, post)
                 # 附加formatter到正文
                 post.description = v2f + post.description
 
@@ -183,7 +184,7 @@ class vuepress1ToVuepress2(BaseConverter):
                 cats.append(cate)
         return cats
 
-    def _make_vuepress2_formatter(self, post: Post):
+    def _make_vuepress2_formatter(self, data, post: Post):
         """
         生成vuepress2支持的formatter
         :param post:
@@ -203,6 +204,13 @@ class vuepress1ToVuepress2(BaseConverter):
         if "timeline" in v2f.category:
             v2f.timeline = True
             v2f.article = True
+
+        # 是否收藏，可在首页展示
+        if data is not None:
+            is_star = data.get('sticky') == 1
+            if is_star:
+                logger.debug(f"当前文章已收藏，{v2f.title} => {is_star}")
+                v2f.star = True
         return v2f.to_md()
 
     def _make_vuepress2_dir_category(self, cate_save_path, cate_name):
