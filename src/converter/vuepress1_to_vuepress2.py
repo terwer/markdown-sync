@@ -3,6 +3,7 @@
 # ========================================================
 import os
 import re
+from datetime import datetime
 
 import yaml
 from loguru import logger
@@ -112,7 +113,10 @@ class vuepress1ToVuepress2(BaseConverter):
                             cts.append(ct)
                         post.categories = cts
                     # date
-                    post.date_created = dictutils.get_dict_str_value(data, "date")
+                    dt = dictutils.get_dict_str_value(data, "date")
+                    if isinstance(dt, str):
+                        dt = datetime.strptime(dt, "%Y-%m-%d %H:%M:%S")
+                    post.date_created = dt
                     # short_desc
                     meta = dictutils.get_dict_value(data, "meta")
                     if meta is not None:
