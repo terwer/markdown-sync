@@ -3,6 +3,7 @@
 # ========================================================
 import os
 import re
+from datetime import datetime
 
 from loguru import logger
 
@@ -19,7 +20,9 @@ class vuepress1ToHexo(BaseConverter):
         self.IGNORED_FILES = [".DS_Store"]
         self.EXCLUDE_CATS = ["更多", "默认分类", "temp", "博文", "心情随笔", "_posts"]
         self.VUEPRESS1_FOLDER = "/Users/terwer/Documents/mydocs/terwer.github.io/docs"
-        self.HEXO_DOCS_PATH = "/Users/terwer/Documents/mydocs/hexo-blog/source/_posts/zh-CN"
+        self.HEXO_DOCS_PATH = (
+            "/Users/terwer/Documents/mydocs/hexo-blog/source/_posts/zh-CN"
+        )
         self.LIMIT_COUNT = -1
 
     def convert(self):
@@ -62,6 +65,8 @@ class vuepress1ToHexo(BaseConverter):
 
                 # 解析 front formatter
                 if data is not None:
+                    # logger.debug(f"paring data => {data}")
+
                     # 标题
                     post.title = dictutils.get_dict_str_value(data, "title")
                     # permalink
@@ -71,13 +76,15 @@ class vuepress1ToHexo(BaseConverter):
                     f_cats = dictutils.get_dict_value(data, "categories")
                     if f_cats is not None:
                         cate_names = [c.description for c in post.categories]
-                        f_cats = [s.replace('《', '').replace('》', '') for s in f_cats]
+                        f_cats = [s.replace("《", "").replace("》", "") for s in f_cats]
                         dir_cats = dir_cats + f_cats
                         title_save_path = permalink.replace(".html", ".md")
                         title_save_path = title_save_path.replace("/post/", "")
                         title_save_path = title_save_path.replace("/pages/", "")
-                        if title_save_path.endswith('/'):
-                            title_save_path = title_save_path[:-1] + '.md'  # 去掉末尾的斜杠，然后拼接扩展名
+                        if title_save_path.endswith("/"):
+                            title_save_path = (
+                                title_save_path[:-1] + ".md"
+                            )  # 去掉末尾的斜杠，然后拼接扩展名
                         title_save_path = os.sep + title_save_path
 
                         post_cats = cate_names + f_cats
@@ -85,7 +92,7 @@ class vuepress1ToHexo(BaseConverter):
                         post_cats = list(set(post_cats))
                         # 去除分类
                         post_cats = [i for i in post_cats if i not in self.EXCLUDE_CATS]
-                        post_cats = ['timeline' if i == '随笔' else i for i in post_cats]
+                        post_cats = ["timeline" if i == "随笔" else i for i in post_cats]
                         cts = []
                         for pc in post_cats:
                             ct = CategoryInfo()
@@ -94,14 +101,16 @@ class vuepress1ToHexo(BaseConverter):
                         post.categories = cts
                     # date
                     dt = dictutils.get_dict_str_value(data, "date")
-                    post.date_created = dt.strftime('%Y-%m-%d %H:%M:%S')
+                    if isinstance(dt, str):
+                        dt = datetime.strptime(dt, "%Y-%m-%d %H:%M:%S")
+                    post.date_created = dt.strftime("%Y-%m-%d %H:%M:%S")
 
                     # short_desc
                     meta = dictutils.get_dict_value(data, "meta")
                     if meta is not None:
                         for meta_item in meta:
-                            if meta_item['name'] == "description":
-                                post.short_desc = meta_item['content']
+                            if meta_item["name"] == "description":
+                                post.short_desc = meta_item["content"]
                                 break
                     tags = dictutils.get_dict_value(data, "tags")
                     if tags is not None:
@@ -145,13 +154,13 @@ class vuepress1ToHexo(BaseConverter):
         # 去掉前缀
         cate_path = ""
         if path.find(prefix) != -1:
-            cate_path = path[find_index + len(prefix):len(path)]
+            cate_path = path[find_index + len(prefix) : len(path)]
         ori_cates = cate_path.split(os.sep)
 
         for ori_cate in ori_cates:
             cate_name = strutils.remove_title_number(ori_cate)
             # 去掉尖括号
-            cate_name = re.sub(r'[《》]', '', cate_name).strip()
+            cate_name = re.sub(r"[《》]", "", cate_name).strip()
             cate_name = cate_name.replace("_posts", "")
             if cate_name != "":
                 cate = CategoryInfo()
