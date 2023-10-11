@@ -1,10 +1,8 @@
 # Copyright (c) 2022 Landray Authors. All Rights Reserved.
 # @author terwer on 2023/7/13
 # ========================================================
-import json
 
 import requests
-from loguru import logger
 
 
 def get_doc_content(id):
@@ -12,16 +10,29 @@ def get_doc_content(id):
     return data["content"]
 
 
-def _siyuanRequest(url, data):
+def ai_get_desc():
+    # 构建请求数据
+    request_data = {"ids": ["20220905122249-9atjoje"], "action": "提取摘要"}
+    # 调用封装的函数进行请求
+    response_data = _siyuanRequest("/api/ai/chatGPTWithAction", request_data)
+    print(response_data)
+
+
+#################################
+# private function
+#################################
+def _siyuanRequest(url, data, method="POST"):
     siyuanConfig = {
         "apiUrl": "http://127.0.0.1:6806",
     }
     reqUrl = f"{siyuanConfig['apiUrl']}{url}"
-    headers = {
-        "Cookie": "_ga=GA1.1.1895521166.1687438205; siyuan=MTY4OTIyMDYxMHxEdi1CQkFFQ180SUFBUkFCRUFBQV81Yl9nZ0FCQm5OMGNtbHVad3dHQUFSa1lYUmhCbk4wY21sdVp3eDZBSGg3SWxkdmNtdHpjR0ZqWlhNaU9uc2lMMVZ6WlhKekwzUmxjbmRsY2k5RWIyTjFiV1Z1ZEhNdmJYbGtiMk56TDFOcFdYVmhibGR2Y210emNHRmpaUzl3ZFdKc2FXTWlPbnNpUVdOalpYTnpRWFYwYUVOdlpHVWlPaUl4TURVd016WWlMQ0pEWVhCMFkyaGhJam9pYldWMmQzQXhjaUo5ZlgwPXyWi5GF_y6v6hjZH8rnGnJ2LG-sSuDkOnSJKj9RH5i0Sg==; _ga_L7WEXVQCR9=GS1.1.1689220611.80.1.1689221271.0.0.0"
-    }
-    logger.info(f"body => {data}")
-    response = requests.post(reqUrl, json=data, headers=headers)
+    with open("data/cookie.txt", "r") as file:
+        cookie = file.read().strip()
+    headers = {"Cookie": cookie}
+    if method == "GET":
+        response = requests.get(reqUrl, headers=headers)
+    else:
+        response = requests.post(reqUrl, json=data, headers=headers)
     resJson = response.json()
 
     if resJson["code"] == -1:

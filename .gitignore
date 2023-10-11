@@ -6,3 +6,4 @@ docs
 .pytest_cache
 poetry.lock
 __pycache__
+tests/data
