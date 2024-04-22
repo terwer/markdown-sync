@@ -3,7 +3,6 @@
 # ========================================================
 import os
 import re
-from datetime import datetime
 
 import yaml
 from loguru import logger
@@ -217,11 +216,11 @@ class vuepress1ToVuepress2(BaseConverter):
             v2f.article = True
 
         # 是否收藏，可在首页展示
-        if data is not None:
-            is_star = data.get('sticky') == 1
-            if is_star:
-                logger.debug(f"当前文章已收藏，{v2f.title} => {is_star}")
-                v2f.star = True
+        # if data is not None:
+        #     is_star = data.get('sticky') == 1
+        #     if is_star:
+        #         logger.debug(f"当前文章已收藏，{v2f.title} => {is_star}")
+        #         v2f.star = True
         return v2f.to_md()
 
     def _make_vuepress2_dir_category(self, cate_save_path, cate_name):
