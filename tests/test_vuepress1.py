@@ -28,12 +28,26 @@ from src.converter.vuepress1_to_vuepress2 import vuepress1ToVuepress2
 
 
 class MyTestCase(unittest.TestCase):
-    def test_vuepress2(self):
-        app = vuepress1ToVuepress2()
+    def test_hexo(self):
+        # from_path = "/Users/terwer/Documents/mydocs/terwer.github.io/docs"
+        # to_path = "/Users/terwer/Documents/mydocs/hexo-blog/source/_posts/zh-CN"
+
+        from_path = "/Users/zhangyue/Documents/terwer/mydocs/terwer.github.io/docs"
+        to_path = "/Users/zhangyue/Documents/terwer/mydocs/hexo-blog/source/_posts/zh-CN"
+
+        app = vuepress1ToHexo(from_path, to_path)
         app.convert()
 
-    def test_hexo(self):
-        app = vuepress1ToHexo()
+    def test_vuepress2(self):
+        # from_path = "/Users/terwer/Documents/mydocs/terwer.github.io/docs"
+        # to_path = "/Users/terwer/Documents/mydocs/zhi-markdown-sync/src/dir_cats_map.json"
+        # cates_map_path = "/Users/terwer/Downloads/vuepress2-blog"
+
+        from_path = "//Users/zhangyue/Documents/terwer/mydocs/terwer.github.io/docs"
+        to_path = "/Users/zhangyue/Documents/terwer/mydocs/vuepress2-blog/src/post"
+        cates_map_path = "/Users/zhangyue/Documents/terwer/mydocs/zhi-markdown-sync/src/dir_cats_map.json"
+
+        app = vuepress1ToVuepress2(from_path, to_path, cates_map_path)
         app.convert()
 
     def test_hugo(self):
