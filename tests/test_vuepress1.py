@@ -22,13 +22,9 @@
 #  questions.
 import unittest
 
-import yaml
-
 from src.converter.vuepress1_to_hexo import vuepress1ToHexo
 from src.converter.vuepress1_to_hugo import vuepress1ToHugo
 from src.converter.vuepress1_to_vuepress2 import vuepress1ToVuepress2
-from src.utils import strutils
-from src.utils.strutils import MyDumper
 
 
 class MyTestCase(unittest.TestCase):
@@ -43,20 +39,3 @@ class MyTestCase(unittest.TestCase):
     def test_hugo(self):
         app = vuepress1ToHugo()
         app.convert()
-
-    def test_slug(self):
-        print()
-        ret = strutils.slug("后端开发")
-        print(ret)
-
-    def test_demo(self):
-        data = {
-            "name": "John",
-            "age": 30,
-            "city": "New York",
-            "haha": ["aaaa", "bbbb", str(404)]
-        }
-
-        # 设置 indent 和 default_flow_style 参数
-        output = yaml.dump(data, Dumper=MyDumper, sort_keys=False, indent=2)
-        print(output)

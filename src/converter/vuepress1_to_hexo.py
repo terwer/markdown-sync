@@ -19,9 +19,11 @@ class vuepress1ToHexo(BaseConverter):
         self.IGNORED_PATHS = ["node_modules", ".vuepress"]
         self.IGNORED_FILES = [".DS_Store"]
         self.EXCLUDE_CATS = ["更多", "默认分类", "temp", "博文", "心情随笔", "_posts"]
-        self.VUEPRESS1_FOLDER = "/Users/terwer/Documents/mydocs/terwer.github.io/docs"
+        self.VUEPRESS1_FOLDER = (
+            "/Users/terwer/Documents/mydocs/gitlab-repos/terwer.github.io/docs"
+        )
         self.HEXO_DOCS_PATH = (
-            "/Users/terwer/Documents/mydocs/hexo-blog/source/_posts/zh-CN"
+            "/Users/terwer/Documents/mydocs/github-repos/hexo-blog/source/_posts/zh-CN"
         )
         self.LIMIT_COUNT = -1
 

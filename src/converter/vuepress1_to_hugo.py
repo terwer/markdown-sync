@@ -1,6 +1,7 @@
 # Copyright (c) 2022 Terwer Authors. All Rights Reserved.
 # @author terwer on 2023/4/12
 # ========================================================
+import datetime
 import os
 import re
 
@@ -18,13 +19,16 @@ class vuepress1ToHugo(BaseConverter):
         self.IGNORED_PATHS = ["node_modules", ".vuepress"]
         self.IGNORED_FILES = [".DS_Store"]
         self.EXCLUDE_CATS = ["更多", "默认分类", "temp", "博文", "心情随笔", "_posts"]
-        # self.HEXO_DOCS_PATH = "/Users/terwer/Downloads/hugo-blog"
-        self.HEXO_DOCS_PATH = "/Users/terwer/Documents/mydocs/hugo-blog/content/post"
+        self.HEXO_DOCS_PATH = (
+            "/Users/terwer/Documents/mydocs/github-repos/hugo-blog/content/post"
+        )
         self.LIMIT_COUNT = -1
 
     def convert(self):
         logger.info("Convert is starting...")
-        vuepress1_folder = "/Users/terwer/Documents/mydocs/terwer.github.io/docs"
+        vuepress1_folder = (
+            "/Users/terwer/Documents/mydocs/gitlab-repos/terwer.github.io/docs"
+        )
         self._do_parse_file_info(vuepress1_folder)
 
     def _do_parse_file_info(self, base_dir):
@@ -74,11 +78,13 @@ class vuepress1ToHugo(BaseConverter):
                     f_cats = dictutils.get_dict_value(data, "categories")
                     if f_cats is not None:
                         cate_names = [c.description for c in post.categories]
-                        f_cats = [s.replace('《', '').replace('》', '') for s in f_cats]
+                        f_cats = [s.replace("《", "").replace("》", "") for s in f_cats]
                         dir_cats = dir_cats + f_cats
                         title_save_path = permalink.replace(".html", ".md")
-                        if title_save_path.endswith('/'):
-                            title_save_path = title_save_path[:-1] + '.md'  # 去掉末尾的斜杠，然后拼接扩展名
+                        if title_save_path.endswith("/"):
+                            title_save_path = (
+                                title_save_path[:-1] + ".md"
+                            )  # 去掉末尾的斜杠，然后拼接扩展名
                         title_save_path = os.sep + title_save_path
 
                         post_cats = cate_names + f_cats
@@ -86,7 +92,7 @@ class vuepress1ToHugo(BaseConverter):
                         post_cats = list(set(post_cats))
                         # 去除分类
                         post_cats = [i for i in post_cats if i not in self.EXCLUDE_CATS]
-                        post_cats = ['timeline' if i == '随笔' else i for i in post_cats]
+                        post_cats = ["timeline" if i == "随笔" else i for i in post_cats]
                         cts = []
                         for pc in post_cats:
                             ct = CategoryInfo()
@@ -99,8 +105,8 @@ class vuepress1ToHugo(BaseConverter):
                     meta = dictutils.get_dict_value(data, "meta")
                     if meta is not None:
                         for meta_item in meta:
-                            if meta_item['name'] == "description":
-                                post.short_desc = meta_item['content']
+                            if meta_item["name"] == "description":
+                                post.short_desc = meta_item["content"]
                                 break
                     tags = dictutils.get_dict_value(data, "tags")
                     if tags is not None:
@@ -144,13 +150,13 @@ class vuepress1ToHugo(BaseConverter):
         # 去掉前缀
         cate_path = ""
         if path.find(prefix) != -1:
-            cate_path = path[find_index + len(prefix):len(path)]
+            cate_path = path[find_index + len(prefix) : len(path)]
         ori_cates = cate_path.split(os.sep)
 
         for ori_cate in ori_cates:
             cate_name = strutils.remove_title_number(ori_cate)
             # 去掉尖括号
-            cate_name = re.sub(r'[《》]', '', cate_name).strip()
+            cate_name = re.sub(r"[《》]", "", cate_name).strip()
             cate_name = cate_name.replace("_posts", "")
             if cate_name != "":
                 cate = CategoryInfo()
@@ -168,7 +174,7 @@ class vuepress1ToHugo(BaseConverter):
         hugof = HugoFrontFormatter()
         hugof.slug = post.wp_slug
         hugof.title = post.title
-        hugof.date = post.date_created
+        hugof.date = f"{post.date_created}{self._get_timezone_str()}"
         hugof.description = post.short_desc
         str_tags = []
         for t in post.mt_keywords:
@@ -185,3 +191,11 @@ class vuepress1ToHugo(BaseConverter):
                 hugof.tags.append("timeline")
 
         return hugof.to_md()
+
+    def _get_timezone_str(self):
+        tz_offset = datetime.datetime.now().astimezone().utcoffset()
+        hours, minutes = divmod(tz_offset.total_seconds() // 3600, 60)
+        sign = "+" if hours >= 0 else "-"
+
+        tz_str = f"{sign}{abs(int(hours)):02d}:{int(minutes):02d}"
+        return tz_str

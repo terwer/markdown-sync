@@ -23,7 +23,7 @@ def is_contain_any_char(my_string, char_array):
 
 
 def remove_title_number(str):
-    ret = re.sub(r'^\d+\.?', '', str).strip()
+    ret = re.sub(r"^\d+\.?", "", str).strip()
     ret = ret.replace(".md", "")
     return ret
 
@@ -37,10 +37,7 @@ def translate(q, to_lang="en", from_lang="zh"):
     """
     # Define the endpoint and query parameters
     url = "https://api.terwer.space/api/translate"
-    params = {
-        "q": q,
-        "to": to_lang
-    }
+    params = {"q": q, "to": to_lang}
 
     # Make a GET request to the API with the parameters
     response = requests.get(url, params=params)
@@ -58,6 +55,8 @@ def slug(q):
     :param q: 中文字符
     :return:
     """
+    if not q:
+        return ""
     slug_text = slugify(q)
     return slug_text
 

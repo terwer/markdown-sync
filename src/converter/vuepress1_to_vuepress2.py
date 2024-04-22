@@ -14,22 +14,28 @@ from src.post import Post
 from src.utils import strutils, dictutils, fileutils
 from src.utils.strutils import MyDumper
 
+
 class vuepress1ToVuepress2(BaseConverter):
     def __init__(self):
         self.IGNORED_PATHS = ["node_modules", ".vuepress"]
         self.IGNORED_FILES = [".DS_Store"]
         self.EXCLUDE_CATS = ["更多", "默认分类", "temp", "博文", "心情随笔", "_posts"]
-        self.vuepress1_folder = "/Users/terwer/Documents/mydocs/terwer.github.io/docs"
-        self.CATS_MAP_DIR = "/Users/terwer/Documents/mydocs/zhi-markdown-sync/src/dir_cats_map.json"
-        self.VUEPRESS2_DOCS_PATH = "/Users/terwer/Downloads/vuepress2-blog"
-        # self.VUEPRESS2_DOCS_PATH = "/Users/terwer/Documents/mydocs/vuepress2-blog/src/post"
+        self.VUEPRESS1_FOLDER = (
+            "/Users/terwer/Documents/mydocs/gitlab-repos/terwer.github.io/docs"
+        )
+        self.CATS_MAP_DIR = (
+            "/Users/terwer/Documents/mydocs/zhi-markdown-sync/src/dir_cats_map.json"
+        )
+        self.VUEPRESS2_DOCS_PATH = (
+            "/Users/terwer/Documents/mydocs/github-repos/vuepress2-blog/src/post"
+        )
         self.LIMIT_COUNT = -1
         # 是否使用分类作为保存路径
         self.use_category_as_dir = False
 
     def convert(self):
         logger.info("Convert is starting...")
-        self._do_parse_file_info(self.vuepress1_folder)
+        self._do_parse_file_info(self.VUEPRESS1_FOLDER)
 
     def _do_parse_file_info(self, base_dir):
         """
@@ -60,7 +66,7 @@ class vuepress1ToVuepress2(BaseConverter):
                 cates = self._parse_cat_arr(dirpath)
                 post.categories = cates
 
-                full_path = os.path.join(dirpath, each_file)
+                full_path = str(os.path.join(dirpath, each_file))
                 # 读取文件属性等操作
                 data, content = strutils.extract_frontmatter_from_file(full_path)
                 post.description = content
@@ -75,7 +81,7 @@ class vuepress1ToVuepress2(BaseConverter):
                     f_cats = dictutils.get_dict_value(data, "categories")
                     if f_cats is not None:
                         cate_names = [c.description for c in post.categories]
-                        f_cats = [s.replace('《', '').replace('》', '') for s in f_cats]
+                        f_cats = [s.replace("《", "").replace("》", "") for s in f_cats]
                         dir_cats = dir_cats + f_cats
                         # 保存路径
                         dir_cates_map = fileutils.read_json_file(self.CATS_MAP_DIR)
@@ -88,13 +94,17 @@ class vuepress1ToVuepress2(BaseConverter):
                             cur_cat_save_path = os.sep.join(cat_path_list)
                             # 是否保存目录
                             if self.use_category_as_dir:
-                                self._make_vuepress2_dir_category(cur_cat_save_path, cate_name)
+                                self._make_vuepress2_dir_category(
+                                    cur_cat_save_path, cate_name
+                                )
                         cat_save_path = os.sep.join(cat_path_list)
                         title_save_path = permalink.replace(".html", ".md")
                         title_save_path = title_save_path.replace("/post/", "")
                         title_save_path = title_save_path.replace("/pages/", "")
-                        if title_save_path.endswith('/'):
-                            title_save_path = title_save_path[:-1] + '.md'  # 去掉末尾的斜杠，然后拼接扩展名
+                        if title_save_path.endswith("/"):
+                            title_save_path = (
+                                title_save_path[:-1] + ".md"
+                            )  # 去掉末尾的斜杠，然后拼接扩展名
                         title_save_path = os.sep + title_save_path
 
                         post_cats = cate_names + f_cats
@@ -102,7 +112,7 @@ class vuepress1ToVuepress2(BaseConverter):
                         post_cats = list(set(post_cats))
                         # 去除分类
                         post_cats = [i for i in post_cats if i not in self.EXCLUDE_CATS]
-                        post_cats = ['timeline' if i == '随笔' else i for i in post_cats]
+                        post_cats = ["timeline" if i == "随笔" else i for i in post_cats]
                         cts = []
                         for pc in post_cats:
                             ct = CategoryInfo()
@@ -115,8 +125,8 @@ class vuepress1ToVuepress2(BaseConverter):
                     meta = dictutils.get_dict_value(data, "meta")
                     if meta is not None:
                         for meta_item in meta:
-                            if meta_item['name'] == "description":
-                                post.short_desc = meta_item['content']
+                            if meta_item["name"] == "description":
+                                post.short_desc = meta_item["content"]
                                 break
                     tags = dictutils.get_dict_value(data, "tags")
                     if tags is not None:
@@ -133,7 +143,9 @@ class vuepress1ToVuepress2(BaseConverter):
                 # 生成分类目录
                 md_save_full_path = self.VUEPRESS2_DOCS_PATH
                 if self.use_category_as_dir:
-                    md_save_full_path = os.path.join(self.VUEPRESS2_DOCS_PATH, cat_save_path)
+                    md_save_full_path = os.path.join(
+                        self.VUEPRESS2_DOCS_PATH, cat_save_path
+                    )
                 if cat_save_path == "":
                     logger.warning("Cate path is empty, ignore")
                     continue
@@ -166,13 +178,13 @@ class vuepress1ToVuepress2(BaseConverter):
         # 去掉前缀
         cate_path = ""
         if path.find(prefix) != -1:
-            cate_path = path[find_index + len(prefix):len(path)]
+            cate_path = path[find_index + len(prefix) : len(path)]
         ori_cates = cate_path.split(os.sep)
 
         for ori_cate in ori_cates:
             cate_name = strutils.remove_title_number(ori_cate)
             # 去掉尖括号
-            cate_name = re.sub(r'[《》]', '', cate_name).strip()
+            cate_name = re.sub(r"[《》]", "", cate_name).strip()
             cate_name = cate_name.replace("_posts", "")
             if cate_name != "":
                 cate = CategoryInfo()
@@ -205,19 +217,22 @@ class vuepress1ToVuepress2(BaseConverter):
         return v2f.to_md()
 
     def _make_vuepress2_dir_category(self, cate_save_path, cate_name):
-        cate_readme_full_path = os.path.join(self.VUEPRESS2_DOCS_PATH, cate_save_path, "README.md")
+        cate_readme_full_path = os.path.join(
+            self.VUEPRESS2_DOCS_PATH, cate_save_path, "README.md"
+        )
         # print(cate_readme_full_path)
-        md_formatter = {
-            "article": False,
-            "timeline": False
-        }
+        md_formatter = {"article": False, "timeline": False}
         title_text = f"# {cate_name}"
-        md_text = yaml.dump(md_formatter, allow_unicode=True, Dumper=MyDumper, indent=2, sort_keys=False)
+        md_text = yaml.dump(
+            md_formatter, allow_unicode=True, Dumper=MyDumper, indent=2, sort_keys=False
+        )
         result = ["---\n", md_text, "---\n", title_text]
         md_content = "".join(result)
         p = os.path.dirname(cate_readme_full_path)
         f = os.path.basename(cate_readme_full_path)
         # 不存在才写
         if not os.path.exists(cate_readme_full_path):
-            logger.info(f"Creating dir category README.md in {cate_save_path}=>{cate_name} ...")
+            logger.info(
+                f"Creating dir category README.md in {cate_save_path}=>{cate_name} ..."
+            )
             fileutils.save_data_to_txt(p, f, md_content)
